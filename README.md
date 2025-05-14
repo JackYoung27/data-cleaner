@@ -14,7 +14,7 @@ The cleaning logic is applicable to a broad range of structured financial data.
 - Corrects company names
 - Cleans all text fields of Unicode and special characters
 - Drops columns that are 100% empty
-- Saves cleaned data as cleaned (filename).csv in the same directory
+- Saves cleaned data as cleaned_(filename).csv in the same directory
 
 ## How to Run
 
