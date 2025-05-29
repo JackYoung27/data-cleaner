@@ -23,15 +23,7 @@ This project is modularized into:
 - Corrects company names
 - Cleans all text fields of Unicode and special characters
 - Drops columns that are 100% empty
-- Infers column types from content
-
-### Feature Engineering
-If the relevant columns exist, the pipeline also generates:
-- `daily_return`: percent change in `price`
-- `rolling_vol_20d`: 20-day rolling standard deviation of return
-- `benchmark_spread`: `yield - benchmark_yield`
-- `near_parity`: binary flag for prices within $5 of par value
-- `called_early`: binary flag if `call_date` is before `maturity_date`
+- Saves cleaned data as cleaned_(filename).csv in the same directory
 
 ## How to Run
 
@@ -78,7 +70,6 @@ Column detection is based on keyword matching in column names.
 ## Output
 
 - The cleaned file will be saved as a .csv in the same directory as the input file.
-- Additional columns will be added if feature engineering is triggered by available data.
 
 ## Contact
 

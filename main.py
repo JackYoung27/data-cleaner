@@ -3,6 +3,7 @@
 import os
 from cleaner.loader import load_file
 from cleaner.cleaner import clean_dataframe
+from cleaner.feature_engineer import add_features
 
 
 def process_file(input_path, output_path=None):
@@ -29,7 +30,20 @@ def process_file(input_path, output_path=None):
     print(f"Saving cleaned data to: {output_path}")
     df_clean.to_csv(output_path, index=False)
     print("Cleaning complete!")
-    return df_clean
+
+    # Add features
+    df_features = add_features(df_clean)
+
+    # Generate features output path
+    features_path = os.path.join(os.path.dirname(
+        input_path), f"features_{filename_no_ext}.csv")
+
+    # Save the featured data
+    print(f"Saving featured data to: {features_path}")
+    df_features.to_csv(features_path, index=False)
+    print("Feature engineering complete!")
+
+    return df_features
 
 
 if __name__ == "__main__":
