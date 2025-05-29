@@ -25,6 +25,18 @@ This project is modularized into:
 - Drops columns that are 100% empty
 - Saves cleaned data as cleaned_(filename).csv in the same directory
 
+### Feature Engineering
+If the relevant columns exist, the pipeline also generates:
+- `daily_return`: percent change in `price`
+- `rolling_vol_20d`: 20-day rolling standard deviation of return
+- `benchmark_spread`: `yield - benchmark_yield`
+- `near_parity`: binary flag for prices within $5 of par value
+- `called_early`: binary flag if `call_date` is before `maturity_date`
+- If `par_value` is missing, the script assumes a default value of 100.
+- Feature computations like `called_early` and `benchmark_spread` are only performed when required columns are present.
+- A blank column named `----` is inserted before all generated feature columns to visually separate them from the original data.
+
+
 ## How to Run
 
 1. Open a terminal.

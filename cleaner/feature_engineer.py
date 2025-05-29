@@ -1,36 +1,62 @@
 import pandas as pd
+import numpy as np
 
 
-def compute_daily_returns(df: pd.DataFrame) -> pd.DataFrame:
+def add_features(df):
+    """Add financial features to a cleaned DataFrame if required columns are present."""
+    # Work on a copy to avoid modifying original
+    df = df.copy()
+
+    # Add spacer column to separate original data from features
+    df['----'] = ''
+
+    # Price-based features
     if 'price' in df.columns:
-        df['daily_return'] = df['price'].pct_change()
-    return df
+        # Calculate daily returns if we have at least 2 price points
+        if len(df['price'].dropna()) >= 2:
+            df['daily_return'] = df['price'].pct_change()
 
+            # Only compute volatility if we have enough return data points
+            if len(df['daily_return'].dropna()) >= 20:
+                df['rolling_vol_20d'] = df['daily_return'].rolling(
+                    window=20).std()
+            else:
+                print("Warning: Insufficient data for rolling volatility calculation")
 
-def add_rolling_volatility(df: pd.DataFrame, window: int = 20) -> pd.DataFrame:
-    if 'daily_return' in df.columns:
-        df['volatility'] = df['daily_return'].rolling(window).std()
-    return df
+        # Handle par value with default fallback
+        if 'par_value' not in df.columns:
+            print("Warning: par_value not found, defaulting to 100")
+            df['par_value'] = 100
 
+        # Near parity indicator using actual or default par value
+        df['near_parity'] = (df['price'] - df['par_value']
+                             ).abs().lt(5).astype(int)
 
-def compute_spread_to_par(df: pd.DataFrame) -> pd.DataFrame:
-    if 'price' in df.columns and 'par' in df.columns:
-        df['spread_to_par'] = (df['price'] - df['par']) / df['par']
-    return df
+    # Yield spread - only if benchmark yield exists
+    if 'yield' in df.columns:
+        if 'benchmark_yield' in df.columns:
+            df['benchmark_spread'] = df['yield'] - df['benchmark_yield']
+        else:
+            print("Warning: benchmark_yield not found, skipping spread calculation")
 
+    # Early call indicator - safe handling of missing dates
+    if 'maturity_date' in df.columns:
+        try:
+            maturity_date = pd.to_datetime(
+                df['maturity_date'], errors='coerce')
 
-def add_binary_flags(df: pd.DataFrame) -> pd.DataFrame:
-    if 'price' in df.columns and 'par' in df.columns:
-        df['near_parity'] = (df['price'] >= 0.98 * df['par']
-                             ) & (df['price'] <= 1.02 * df['par'])
-    if 'call_date' in df.columns and 'maturity_date' in df.columns:
-        df['called_early'] = df['call_date'] < df['maturity_date']
-    return df
+            if 'call_date' in df.columns:
+                call_date = pd.to_datetime(df['call_date'], errors='coerce')
+                # Only compute where both dates are valid
+                valid_dates = ~(call_date.isna() | maturity_date.isna())
+                df['called_early'] = pd.Series(
+                    False, index=df.index)  # Default to False
+                df.loc[valid_dates, 'called_early'] = call_date[valid_dates].lt(
+                    maturity_date[valid_dates])
+                df['called_early'] = df['called_early'].astype(int)
+            else:
+                print("Warning: call_date not found, skipping early call detection")
+        except Exception as e:
+            print(f"Warning: Error in date processing: {str(e)}")
 
-
-def add_features(df: pd.DataFrame) -> pd.DataFrame:
-    df = compute_daily_returns(df)
-    df = add_rolling_volatility(df)
-    df = compute_spread_to_par(df)
-    df = add_binary_flags(df)
     return df
