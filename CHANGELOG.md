@@ -12,7 +12,8 @@ All notable changes to this project will be documented in this file.
   - `near_parity` binary flag for prices within $5 of par
   - `benchmark_spread` from `yield - benchmark_yield`
   - `called_early` flag if `call_date` < `maturity_date`
-- Integration of feature engineering in `main.py` pipeline
+- Integrated `add_features()` into `main.py` pipeline
+- Saves `features_[filename].csv` alongside the cleaned file
 
 ---
 
