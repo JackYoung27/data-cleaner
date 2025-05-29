@@ -14,12 +14,12 @@ def add_features(df):
     if 'price' in df.columns:
         # Calculate daily returns if we have at least 2 price points
         if len(df['price'].dropna()) >= 2:
-            df['daily_return'] = df['price'].pct_change()
+            df['daily_return'] = df['price'].pct_change().round(2)
 
             # Only compute volatility if we have enough return data points
             if len(df['daily_return'].dropna()) >= 20:
                 df['rolling_vol_20d'] = df['daily_return'].rolling(
-                    window=20).std()
+                    window=20).std().round(2)
             else:
                 print("Warning: Insufficient data for rolling volatility calculation")
 
@@ -35,7 +35,8 @@ def add_features(df):
     # Yield spread - only if benchmark yield exists
     if 'yield' in df.columns:
         if 'benchmark_yield' in df.columns:
-            df['benchmark_spread'] = df['yield'] - df['benchmark_yield']
+            df['benchmark_spread'] = (
+                df['yield'] - df['benchmark_yield']).round(2)
         else:
             print("Warning: benchmark_yield not found, skipping spread calculation")
 
