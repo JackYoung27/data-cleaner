@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-06-01
+### Added
+- `model_preview.py` module:
+  - Automatically detects actual vs. theoretical price columns using flexible keyword matching (e.g., `price`, `model_price`)
+  - Selects numeric features based on simple keyword scanning (e.g., `volatility`, `spread`, `parity`)
+  - Skips non-numeric or missing features
+  - Drops rows with NaNs in any selected input columns
+  - Runs a Ridge regression to predict `price - model_price` deviation
+  - Prints:
+    - Test set Mean Squared Error (MSE)
+    - Feature coefficients
+    - Top 3 prediction samples with actual vs predicted deviation
+
+### Changed
+- `main.py` updated to automatically run `run_model_preview()` after feature engineering is completed
+
+### Fixed
+- Resolved SettingWithCopyWarning by adding `.copy()` after `dropna` operations
+- Prevented model errors due to NaNs or string-based features during training
+
 ---
 
 ## [0.1.3] - 2025-05-29

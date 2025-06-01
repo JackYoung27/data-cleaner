@@ -4,6 +4,7 @@ import os
 from cleaner.loader import load_file
 from cleaner.cleaner import clean_dataframe
 from cleaner.feature_engineer import add_features
+from cleaner.model_preview import run_model_preview
 
 
 def process_file(input_path, output_path=None):
@@ -49,6 +50,8 @@ def process_file(input_path, output_path=None):
 if __name__ == "__main__":
     try:
         input_file = input("Enter file path (.csv or .xlsx): ")
-        cleaned_df = process_file(input_file)
+        df_model = process_file(input_file)
+        if df_model is not None:
+            run_model_preview(df_model)
     except Exception as e:
         print(f"Error: {str(e)}")

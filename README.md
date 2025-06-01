@@ -11,6 +11,7 @@ This project is modularized into:
 - `cleaner.py` – for cleaning logic
 - `utils.py` – for shared helpers and constants
 - `feature_engineer.py` – for generating financial modeling features
+- `model_preview.py` – runs Ridge regression to test explanatory power of features
 - `main.py` – for running the full end-to-end pipeline
 
 ## Key Features
@@ -36,6 +37,19 @@ If the relevant columns exist, the pipeline also generates:
 - Feature computations like `called_early` and `benchmark_spread` are only performed when required columns are present.
 - A blank column named `----` is inserted before all generated feature columns to visually separate them from the original data.
 
+### Model Preview
+After feature engineering, the pipeline:
+- Detects `actual_price` and `theoretical_price` columns (e.g., `price`, `model_price`)
+- Computes `price_deviation = actual - theoretical`
+- Selects usable numeric features using keyword matching (e.g., `volatility`, `spread`, `parity`)
+- Drops rows with missing or non-numeric data
+- Trains a Ridge regression model to predict the deviation
+- Prints:
+  - Test set MSE (Mean Squared Error)
+  - Feature coefficients
+  - 3 example predictions (actual vs predicted)
+
+This helps assess whether your features meaningfully explain pricing error.
 
 ## How to Run
 
